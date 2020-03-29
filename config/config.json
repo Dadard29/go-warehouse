@@ -1,0 +1,18 @@
+{
+  "api": {
+    "infos": {
+      "title": "Warehouse",
+      "description": "Store music files and manages download",
+      "contactEmail": "florian.charpentier67@gmail.com",
+      "license": "WTFPL",
+      "licenseUrl": "http://wtfpl.net"
+    },
+    "server": {
+      "host": "0.0.0.0",
+      "port": "8084",
+      "readTimeout": "15",
+      "writeTimeout": "15",
+      "idleTimeout": "60"
+    }
+  }
+}
