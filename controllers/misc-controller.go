@@ -17,11 +17,11 @@ const (
 )
 
 func checkToken(token string, w http.ResponseWriter) bool {
-	err := Sc.CheckToken(token, apiName)
+	msg, err := Sc.CheckToken(token, apiName)
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(http.StatusInternalServerError,
-			"error checking subscription", w)
+			msg, w)
 		return false
 	}
 

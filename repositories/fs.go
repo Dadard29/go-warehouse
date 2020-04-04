@@ -17,7 +17,8 @@ const (
 )
 
 func getFullFilePath(token string, tags models.Tags) string {
-	return path.Join(baseDirStore, token, tags.Artist, tags.Album, tags.Title + mp3Extension)
+	fingerprint := token[:6]
+	return path.Join(baseDirStore, tags.Artist, tags.Album, fingerprint + "_" + tags.Title + mp3Extension)
 }
 
 func GetFilePathForDownload(token string, tags models.Tags) (string, error) {
@@ -35,15 +36,15 @@ func AddFile(srcPath string, token string, tags models.Tags) (models.File, error
 
 	var f models.File
 
-	if err := checkPlaceholder(token); err != nil {
+	//if err := checkPlaceholder(token); err != nil {
+	//	return f, err
+	//}
+
+	if err := checkArtist(tags.Artist); err != nil {
 		return f, err
 	}
 
-	if err := checkArtist(token, tags.Artist); err != nil {
-		return f, err
-	}
-
-	if err := checkAlbum(token, tags.Artist, tags.Album); err != nil {
+	if err := checkAlbum(tags.Artist, tags.Album); err != nil {
 		return f, err
 	}
 
@@ -91,33 +92,36 @@ func RemoveFile(token string, tags models.Tags) (models.File, error) {
 func ListFiles(token string) ([]models.File, error) {
 	var l = make([]models.File, 0)
 
-	if err := checkPlaceholder(token); err != nil {
-		return nil, err
-	}
-
 	// read all artists
-	artistDirs, err := ioutil.ReadDir(path.Join(baseDirStore, token))
+	artistDirs, err := ioutil.ReadDir(path.Join(baseDirStore))
 	if err != nil {
+		logger.Error("error listing artists")
 		return nil, err
 	}
 	for _, ar := range artistDirs {
+		if !ar.IsDir() {
+			continue
+		}
 
 		// read all albums
-		albumDirs, err := ioutil.ReadDir(path.Join(baseDirStore, token, ar.Name()))
+		albumDirs, err := ioutil.ReadDir(path.Join(baseDirStore, ar.Name()))
 		if err != nil {
+			logger.Error("error listing album for artist " + ar.Name())
 			return nil, err
 		}
 		for _, al := range albumDirs {
 
 			// read all titles
-			titleDirs, err := ioutil.ReadDir(path.Join(baseDirStore, token, ar.Name(), al.Name()))
+			titleDirs, err := ioutil.ReadDir(path.Join(baseDirStore, ar.Name(), al.Name()))
 			if err != nil {
+				logger.Error("error listing titles for artist " + ar.Name() + " and album " + al.Name())
 				return nil, err
 			}
 			for _, t := range titleDirs {
 				tags, err := ReadTags(
-					path.Join(baseDirStore, token, ar.Name(), al.Name(), t.Name()))
+					path.Join(baseDirStore, ar.Name(), al.Name(), t.Name()))
 				if err != nil {
+					logger.Error("error reading tags of file " + t.Name())
 					logger.Error(err.Error())
 					continue
 				}

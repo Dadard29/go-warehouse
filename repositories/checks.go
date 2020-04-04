@@ -33,8 +33,8 @@ func checkPlaceholder(token string) error {
 	return nil
 }
 
-func checkArtist(token string, artist string) error {
-	path2check := path.Join(baseDirStore, token, artist)
+func checkArtist(artist string) error {
+	path2check := path.Join(baseDirStore, artist)
 	f, err := os.Stat(path2check)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -54,8 +54,8 @@ func checkArtist(token string, artist string) error {
 	return nil
 }
 
-func checkAlbum(token string, artist string, album string) error {
-	path2check := path.Join(baseDirStore, token, artist, album)
+func checkAlbum(artist string, album string) error {
+	path2check := path.Join(baseDirStore, artist, album)
 	f, err := os.Stat(path2check)
 	if err != nil {
 		if os.IsNotExist(err) {
