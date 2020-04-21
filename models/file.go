@@ -22,9 +22,3 @@ type File struct {
 	AddedAt  time.Time
 	Metadata Tags
 }
-
-type FileListJson struct {
-	Quota   int
-	Current int
-	List    []File
-}

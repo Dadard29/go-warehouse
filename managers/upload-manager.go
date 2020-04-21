@@ -39,7 +39,7 @@ func FileFsCheck() (bool, error) {
 		return false, err
 	}
 
-	for _, f := range fsList.List {
+	for _, f := range fsList {
 		check := false
 		for _, d := range dbList {
 			if f.Metadata.Title == d.Title && f.Metadata.Artist == d.Artist {
@@ -57,20 +57,16 @@ func FileFsCheck() (bool, error) {
 }
 
 // fs
-func FileListManager() (models.FileListJson, error) {
-	var flJson models.FileListJson
+func FileListManager() ([]models.File, error) {
+	var f []models.File
 
 	files, err := repositories.ListFiles()
 	if err != nil {
 		logger.Error("error listing files")
-		return flJson, err
+		return f, err
 	}
 
-	flJson.List = files
-	flJson.Quota = maxFilesNumber
-	flJson.Current = len(files)
-
-	return flJson, err
+	return files, err
 }
 
 func FileDeleteManager(tags models.Tags) (models.File, error) {
@@ -155,7 +151,7 @@ func FileDbCreateManager(token string, m models.MusicParam, t models.Tags) (mode
 		return f, err
 	}
 
-	return mEntity.ToDto(""), nil
+	return mEntity.ToDto(), nil
 }
 
 func FileDbDelete(title string, artist string) (models.MusicDto, error) {
@@ -166,7 +162,7 @@ func FileDbDelete(title string, artist string) (models.MusicDto, error) {
 		return f, err
 	}
 
-	return m.ToDto(""), nil
+	return m.ToDto(), nil
 }
 
 func FileDbListManager() ([]models.MusicDto, error) {
@@ -177,7 +173,7 @@ func FileDbListManager() ([]models.MusicDto, error) {
 
 	var lDtos = make([]models.MusicDto, 0)
 	for _, v := range lEntities {
-		lDtos = append(lDtos, v.ToDto(""))
+		lDtos = append(lDtos, v.ToDto())
 	}
 
 	return lDtos, nil

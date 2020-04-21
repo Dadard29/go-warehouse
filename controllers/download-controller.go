@@ -9,10 +9,6 @@ import (
 
 // download is public
 func DownloadGet(w http.ResponseWriter, r *http.Request) {
-	//accessToken := auth.ParseApiKey(r, "accessToken=", false)
-	//if !checkToken(accessToken, w) {
-	//	return
-	//}
 
 	title := r.URL.Query().Get("title")
 	artist := r.URL.Query().Get("artist")

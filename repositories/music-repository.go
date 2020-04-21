@@ -42,7 +42,7 @@ func MusicDelete(title string, artist string) (models.MusicEntity, error) {
 		return f, err
 	}
 
-	api.Api.Database.Orm.Delete(&m)
+	api.Api.Database.Orm.Where(&m).Delete(&m)
 
 	if musicExists(title, artist) {
 		return f, errors.New("error deleting music")

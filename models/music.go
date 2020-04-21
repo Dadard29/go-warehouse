@@ -19,7 +19,7 @@ func (MusicEntity) TableName() string {
 	return "music"
 }
 
-func (m MusicEntity) ToDto(fileUrl string) MusicDto {
+func (m MusicEntity) ToDto() MusicDto {
 	return MusicDto{
 		Title:       m.Title,
 		Artist:      m.Artist,
@@ -28,7 +28,6 @@ func (m MusicEntity) ToDto(fileUrl string) MusicDto {
 		Genre:       m.Genre,
 		ImageUrl:    m.ImageUrl,
 		AddedAt:     m.AddedAt,
-		FileUrl:     fileUrl,
 	}
 }
 
@@ -42,8 +41,6 @@ type MusicDto struct {
 	ImageUrl    string `json:"image_url"`
 
 	AddedAt time.Time `json:"added_at"`
-
-	FileUrl string `json:"file_url"`
 }
 
 // input
