@@ -15,7 +15,7 @@ const (
 	mimeMp3 = "audio/mpeg"
 
 	maxMegaBytes = 10
-	maxSize = maxMegaBytes << (10 * 2)
+	maxSize      = maxMegaBytes << (10 * 2)
 
 	maxFilesNumber = 10
 )
@@ -27,6 +27,7 @@ func cleanTempFile(path string) {
 	}
 }
 
+// fs
 func FileListManager() (models.FileListJson, error) {
 	var flJson models.FileListJson
 
@@ -55,23 +56,10 @@ func FileDeleteManager(token string, tags models.Tags) (models.File, error) {
 	return fileDeleted, nil
 }
 
-func FileStoreManager(file multipart.File, headers *multipart.FileHeader) (models.File, error) {
+func FileStoreManager(file multipart.File, headers *multipart.FileHeader, mp models.MusicParam) (models.File, error) {
 	var f models.File
 
 	defer file.Close()
-
-	// check quota
-	storedFiles, err := repositories.ListFiles()
-	if err != nil {
-		logger.Error("error checking existing stored files")
-		return f, err
-	}
-
-	storedFilesCount := len(storedFiles)
-	if storedFilesCount > maxFilesNumber {
-		return f, errors.New(fmt.Sprintf("file number quota already reached (%d/%d)",
-			storedFilesCount, maxFilesNumber))
-	}
 
 	// check size
 	if headers.Size > maxSize {
@@ -116,6 +104,8 @@ func FileStoreManager(file multipart.File, headers *multipart.FileHeader) (model
 		return f, errors.New("error reading id3v2 tags")
 	}
 
+	// check if tags equals the params
+
 	var fileAdded models.File
 	if fileAdded, err = repositories.AddFile(tempFilePath, tags); err != nil {
 		cleanTempFile(tempFilePath)
@@ -125,4 +115,16 @@ func FileStoreManager(file multipart.File, headers *multipart.FileHeader) (model
 	}
 
 	return fileAdded, nil
+}
+
+// db
+func FileDbCreateManager(token string, m models.MusicParam, t models.Tags) (models.MusicDto, error) {
+	var f models.MusicDto
+
+	mEntity, err := repositories.MusicCreate(token, m, t)
+	if err != nil {
+		return f, err
+	}
+
+	return mEntity.ToDto(""), nil
 }

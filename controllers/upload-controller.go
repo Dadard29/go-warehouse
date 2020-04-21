@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+const (
+	fileParam     = "file"
+	imageUrlParam = "image_url"
+)
+
 // GET
 // Authorization: 	token
 // Params: 			None
@@ -65,7 +70,7 @@ func FileDelete(w http.ResponseWriter, r *http.Request) {
 
 // POST
 // Authorization: 	token
-// Params: 			None
+// Params: 			(form-data): fileParam, imageUrlParam
 // Body: 			file to upload
 func FileUpload(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
@@ -81,7 +86,16 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, headers, err := r.FormFile("file")
+	imageUrl := r.Form.Get(imageUrlParam)
+	m := models.MusicParam{
+		ImageUrl: imageUrl,
+	}
+	if !m.CheckSanity() {
+		api.Api.BuildMissingParameter(w)
+		return
+	}
+
+	file, fileHeaders, err := r.FormFile(fileParam)
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(
@@ -89,7 +103,8 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileDb, err := managers.FileStoreManager(file, headers)
+	// store file
+	fileStored, err := managers.FileStoreManager(file, fileHeaders, m)
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(
@@ -97,6 +112,21 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create in db
+	fileDb, err := managers.FileDbCreateManager(accessToken, m, fileStored.Metadata)
+	if err != nil {
+		managers.FileDeleteManager(accessToken, fileStored.Metadata)
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error storing file in db", w)
+		return
+	}
+
 	api.Api.BuildJsonResponse(
-		true, "file stored", fileDb, w)
+		true, "file stored", struct {
+			f models.File
+			m models.MusicDto
+		}{
+			fileStored,
+			fileDb,
+		}, w)
 }

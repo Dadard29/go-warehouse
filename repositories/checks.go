@@ -75,7 +75,6 @@ func checkAlbum(artist string, album string) error {
 	return nil
 }
 
-
 func CheckFileAudio(path string) bool {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -86,29 +85,39 @@ func CheckFileAudio(path string) bool {
 }
 
 func ReadTags(path string) (models.Tags, error) {
-	var t models.Tags
+	var fallback models.Tags
 	f, err := id3v2.Open(path, id3v2.Options{Parse: true})
 	if err != nil {
-		return t, err
+		return fallback, err
 	}
 
 	if f.Title() == "" {
-		return t, errors.New("title tag empty")
+		return fallback, errors.New("title tag empty")
 	}
 
 	if f.Artist() == "" {
-		return t, errors.New("artist tag empty")
+		return fallback, errors.New("artist tag empty")
 	}
 
 	if f.Album() == "" {
-		return t, errors.New("album tag empty")
+		return fallback, errors.New("album tag empty")
 	}
 
-	t.Title = f.Title()
-	t.Artist = f.Artist()
-	t.Album = f.Album()
+	if f.Genre() == "" {
+		return fallback, errors.New("genre tag empty")
+	}
 
-	return t, nil
+	if f.Year() == "" {
+		return fallback, errors.New("year tag empty")
+	}
+
+	return models.Tags{
+		Title:       f.Title(),
+		Artist:      f.Artist(),
+		Album:       f.Album(),
+		PublishedAt: f.Year(),
+		Genre:       f.Genre(),
+	}, nil
 }
 
 // return true if file exist

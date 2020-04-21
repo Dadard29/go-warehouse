@@ -10,9 +10,11 @@ const (
 )
 
 type Tags struct {
-	Title string
-	Artist string
-	Album string
+	Title       string
+	Artist      string
+	Album       string
+	PublishedAt string
+	Genre       string
 }
 
 type File struct {
@@ -22,7 +24,7 @@ type File struct {
 }
 
 type FileListJson struct {
-	Quota int
+	Quota   int
 	Current int
-	List []File
+	List    []File
 }

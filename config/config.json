@@ -13,6 +13,13 @@
       "readTimeout": "15",
       "writeTimeout": "15",
       "idleTimeout": "60"
+    },
+    "db": {
+      "usernameKey": "DB_USER",
+      "passwordKey": "DB_PASSWORD",
+      "database": "warehouse",
+      "host": "localhost",
+      "port": "3306"
     }
   }
 }

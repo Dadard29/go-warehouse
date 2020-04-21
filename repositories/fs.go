@@ -11,13 +11,12 @@ import (
 
 const (
 	baseDirStore = "store"
-	Tmp = "tmp"
+	Tmp          = "tmp"
 	mp3Extension = ".mp3"
-
 )
 
 func getFullFilePath(tags models.Tags) string {
-	return path.Join(baseDirStore, tags.Artist, tags.Album, tags.Title + mp3Extension)
+	return path.Join(baseDirStore, tags.Artist, tags.Album, tags.Title+mp3Extension)
 }
 
 func GetFilePathForDownload(tags models.Tags) (string, error) {
@@ -35,10 +34,6 @@ func AddFile(srcPath string, tags models.Tags) (models.File, error) {
 
 	var f models.File
 
-	//if err := checkPlaceholder(token); err != nil {
-	//	return f, err
-	//}
-
 	if err := checkArtist(tags.Artist); err != nil {
 		return f, err
 	}
@@ -50,7 +45,6 @@ func AddFile(srcPath string, tags models.Tags) (models.File, error) {
 	if checkFileExist(tags) {
 		return f, errors.New(fmt.Sprintf("file %s already exists", tags.Title))
 	}
-
 
 	outputPath := getFullFilePath(tags)
 	if err := os.Rename(srcPath, outputPath); err != nil {
