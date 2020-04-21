@@ -112,8 +112,8 @@ func ReadTags(path string) (models.Tags, error) {
 }
 
 // return true if file exist
-func checkFileExist(token string, tags models.Tags) bool {
-	file2check := getFullFilePath(token, tags)
+func checkFileExist(tags models.Tags) bool {
+	file2check := getFullFilePath(tags)
 	_, err := os.Stat(file2check)
 	if err != nil {
 		if os.IsNotExist(err) {

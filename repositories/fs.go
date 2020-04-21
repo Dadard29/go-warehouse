@@ -16,14 +16,13 @@ const (
 
 )
 
-func getFullFilePath(token string, tags models.Tags) string {
-	fingerprint := token[:6]
-	return path.Join(baseDirStore, tags.Artist, tags.Album, fingerprint + "_" + tags.Title + mp3Extension)
+func getFullFilePath(tags models.Tags) string {
+	return path.Join(baseDirStore, tags.Artist, tags.Album, tags.Title + mp3Extension)
 }
 
-func GetFilePathForDownload(token string, tags models.Tags) (string, error) {
+func GetFilePathForDownload(tags models.Tags) (string, error) {
 	var p string
-	filePath := getFullFilePath(token, tags)
+	filePath := getFullFilePath(tags)
 
 	if _, err := os.Stat(filePath); err != nil {
 		return p, err
@@ -32,7 +31,7 @@ func GetFilePathForDownload(token string, tags models.Tags) (string, error) {
 	return filePath, nil
 }
 
-func AddFile(srcPath string, token string, tags models.Tags) (models.File, error) {
+func AddFile(srcPath string, tags models.Tags) (models.File, error) {
 
 	var f models.File
 
@@ -48,12 +47,12 @@ func AddFile(srcPath string, token string, tags models.Tags) (models.File, error
 		return f, err
 	}
 
-	if checkFileExist(token, tags) {
+	if checkFileExist(tags) {
 		return f, errors.New(fmt.Sprintf("file %s already exists", tags.Title))
 	}
 
 
-	outputPath := getFullFilePath(token, tags)
+	outputPath := getFullFilePath(tags)
 	if err := os.Rename(srcPath, outputPath); err != nil {
 		return f, err
 	}
@@ -67,10 +66,10 @@ func AddFile(srcPath string, token string, tags models.Tags) (models.File, error
 	}, nil
 }
 
-func RemoveFile(token string, tags models.Tags) (models.File, error) {
+func RemoveFile(tags models.Tags) (models.File, error) {
 	var f models.File
 
-	p := getFullFilePath(token, tags)
+	p := getFullFilePath(tags)
 
 	infos, err := os.Stat(p)
 	if err != nil {
@@ -89,7 +88,7 @@ func RemoveFile(token string, tags models.Tags) (models.File, error) {
 	}, nil
 }
 
-func ListFiles(token string) ([]models.File, error) {
+func ListFiles() ([]models.File, error) {
 	var l = make([]models.File, 0)
 
 	// read all artists

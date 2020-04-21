@@ -5,6 +5,6 @@ import (
 	"github.com/Dadard29/go-warehouse/repositories"
 )
 
-func DownloadGetManager(token string, tags models.Tags) (string, error) {
-	return repositories.GetFilePathForDownload(token, tags)
+func DownloadGetManager(tags models.Tags) (string, error) {
+	return repositories.GetFilePathForDownload(tags)
 }

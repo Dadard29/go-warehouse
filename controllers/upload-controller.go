@@ -18,7 +18,7 @@ func FileGetList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	l, err := managers.FileListManager(accessToken)
+	l, err := managers.FileListManager()
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error listing files", w)
@@ -89,7 +89,7 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileDb, err := managers.FileStoreManager(accessToken, file, headers)
+	fileDb, err := managers.FileStoreManager(file, headers)
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(

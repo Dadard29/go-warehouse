@@ -27,10 +27,10 @@ func cleanTempFile(path string) {
 	}
 }
 
-func FileListManager(token string) (models.FileListJson, error) {
+func FileListManager() (models.FileListJson, error) {
 	var flJson models.FileListJson
 
-	files, err := repositories.ListFiles(token)
+	files, err := repositories.ListFiles()
 	if err != nil {
 		logger.Error("error listing files")
 		return flJson, err
@@ -46,7 +46,7 @@ func FileListManager(token string) (models.FileListJson, error) {
 func FileDeleteManager(token string, tags models.Tags) (models.File, error) {
 	var f models.File
 
-	fileDeleted, err := repositories.RemoveFile(token, tags)
+	fileDeleted, err := repositories.RemoveFile(tags)
 	if err != nil {
 		logger.Error(err.Error())
 		return f, errors.New("error while deleting file")
@@ -55,13 +55,13 @@ func FileDeleteManager(token string, tags models.Tags) (models.File, error) {
 	return fileDeleted, nil
 }
 
-func FileStoreManager(token string, file multipart.File, headers *multipart.FileHeader) (models.File, error) {
+func FileStoreManager(file multipart.File, headers *multipart.FileHeader) (models.File, error) {
 	var f models.File
 
 	defer file.Close()
 
 	// check quota
-	storedFiles, err := repositories.ListFiles(token)
+	storedFiles, err := repositories.ListFiles()
 	if err != nil {
 		logger.Error("error checking existing stored files")
 		return f, err
@@ -117,7 +117,7 @@ func FileStoreManager(token string, file multipart.File, headers *multipart.File
 	}
 
 	var fileAdded models.File
-	if fileAdded, err = repositories.AddFile(tempFilePath, token, tags); err != nil {
+	if fileAdded, err = repositories.AddFile(tempFilePath, tags); err != nil {
 		cleanTempFile(tempFilePath)
 
 		logger.Error(err.Error())

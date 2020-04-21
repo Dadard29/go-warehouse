@@ -23,7 +23,7 @@ func DownloadGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := managers.DownloadGetManager(accessToken, models.Tags{
+	p, err := managers.DownloadGetManager(models.Tags{
 		Title:  title,
 		Artist: artist,
 		Album:  album,
