@@ -27,6 +27,35 @@ func cleanTempFile(path string) {
 	}
 }
 
+// check if fs and db is same
+func FileFsCheck() (bool, error) {
+	fsList, err := FileListManager()
+	if err != nil {
+		return false, err
+	}
+
+	dbList, err := FileDbListManager()
+	if err != nil {
+		return false, err
+	}
+
+	for _, f := range fsList.List {
+		check := false
+		for _, d := range dbList {
+			if f.Metadata.Title == d.Title && f.Metadata.Artist == d.Artist {
+				check = true
+				break
+			}
+		}
+
+		if !check {
+			return false, errors.New("conflicts found")
+		}
+	}
+
+	return true, nil
+}
+
 // fs
 func FileListManager() (models.FileListJson, error) {
 	var flJson models.FileListJson
@@ -44,7 +73,7 @@ func FileListManager() (models.FileListJson, error) {
 	return flJson, err
 }
 
-func FileDeleteManager(token string, tags models.Tags) (models.File, error) {
+func FileDeleteManager(tags models.Tags) (models.File, error) {
 	var f models.File
 
 	fileDeleted, err := repositories.RemoveFile(tags)
@@ -127,4 +156,29 @@ func FileDbCreateManager(token string, m models.MusicParam, t models.Tags) (mode
 	}
 
 	return mEntity.ToDto(""), nil
+}
+
+func FileDbDelete(title string, artist string) (models.MusicDto, error) {
+	var f models.MusicDto
+
+	m, err := repositories.MusicDelete(title, artist)
+	if err != nil {
+		return f, err
+	}
+
+	return m.ToDto(""), nil
+}
+
+func FileDbListManager() ([]models.MusicDto, error) {
+	lEntities, err := repositories.MusicList()
+	if err != nil {
+		return nil, err
+	}
+
+	var lDtos = make([]models.MusicDto, 0)
+	for _, v := range lEntities {
+		lDtos = append(lDtos, v.ToDto(""))
+	}
+
+	return lDtos, nil
 }

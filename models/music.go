@@ -28,7 +28,6 @@ func (m MusicEntity) ToDto(fileUrl string) MusicDto {
 		Genre:       m.Genre,
 		ImageUrl:    m.ImageUrl,
 		AddedAt:     m.AddedAt,
-		AddedBy:     m.AddedBy,
 		FileUrl:     fileUrl,
 	}
 }
@@ -43,7 +42,6 @@ type MusicDto struct {
 	ImageUrl    string `json:"image_url"`
 
 	AddedAt time.Time `json:"added_at"`
-	AddedBy string    `json:"added_by"`
 
 	FileUrl string `json:"file_url"`
 }

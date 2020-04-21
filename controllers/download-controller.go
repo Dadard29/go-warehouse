@@ -1,18 +1,18 @@
 package controllers
 
 import (
-	"github.com/Dadard29/go-api-utils/auth"
 	"github.com/Dadard29/go-warehouse/api"
 	"github.com/Dadard29/go-warehouse/managers"
 	"github.com/Dadard29/go-warehouse/models"
 	"net/http"
 )
 
+// download is public
 func DownloadGet(w http.ResponseWriter, r *http.Request) {
-	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
-	if !checkToken(accessToken, w) {
-		return
-	}
+	//accessToken := auth.ParseApiKey(r, "accessToken=", false)
+	//if !checkToken(accessToken, w) {
+	//	return
+	//}
 
 	title := r.URL.Query().Get("title")
 	artist := r.URL.Query().Get("artist")

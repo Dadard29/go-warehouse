@@ -17,16 +17,41 @@ const (
 // Authorization: 	token
 // Params: 			None
 // Body: 			None
+
+// check for conflicts between DB and FS
+func FileFsCheck(w http.ResponseWriter, r *http.Request) {
+	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
+	if !checkToken(accessToken, w) {
+		return
+	}
+
+	c, err := managers.FileFsCheck()
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "conflicts found", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(c, "no conflict found", nil, w)
+
+}
+
+// GET
+// Authorization: 	token
+// Params: 			None
+// Body: 			None
+
+// get last added files from DB
 func FileGetList(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
 	if !checkToken(accessToken, w) {
 		return
 	}
 
-	l, err := managers.FileListManager()
+	l, err := managers.FileDbListManager()
 	if err != nil {
 		logger.Error(err.Error())
-		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error listing files", w)
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error listing musics", w)
 		return
 	}
 
@@ -37,6 +62,8 @@ func FileGetList(w http.ResponseWriter, r *http.Request) {
 // Authorization: 	token
 // Params: 			title, album, artist
 // Body: 			None
+
+// remove file from DB and FS
 func FileDelete(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
 	if !checkToken(accessToken, w) {
@@ -52,7 +79,7 @@ func FileDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := managers.FileDeleteManager(accessToken, models.Tags{
+	_, err := managers.FileDeleteManager(models.Tags{
 		Title:  title,
 		Artist: artist,
 		Album:  album,
@@ -60,18 +87,26 @@ func FileDelete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logger.Error(err.Error())
-		api.Api.BuildErrorResponse(
-			http.StatusInternalServerError, "error while deleting file", w)
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error while deleting file", w)
 		return
 	}
 
-	api.Api.BuildJsonResponse(true, "file deleted", f, w)
+	fileDb, err := managers.FileDbDelete(title, artist)
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error while deleting file in db", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(true, "file deleted", fileDb, w)
 }
 
 // POST
 // Authorization: 	token
-// Params: 			(form-data): fileParam, imageUrlParam
-// Body: 			file to upload
+// Params: 			None
+// Body: 			fileParam, imageUrlParam
+
+// create file in DB and FS
 func FileUpload(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
 	if !checkToken(accessToken, w) {
@@ -115,18 +150,12 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 	// create in db
 	fileDb, err := managers.FileDbCreateManager(accessToken, m, fileStored.Metadata)
 	if err != nil {
-		managers.FileDeleteManager(accessToken, fileStored.Metadata)
+		managers.FileDeleteManager(fileStored.Metadata)
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error storing file in db", w)
 		return
 	}
 
 	api.Api.BuildJsonResponse(
-		true, "file stored", struct {
-			f models.File
-			m models.MusicDto
-		}{
-			fileStored,
-			fileDb,
-		}, w)
+		true, "file stored", fileDb, w)
 }

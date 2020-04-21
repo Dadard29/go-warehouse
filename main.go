@@ -31,6 +31,12 @@ var routes = service.RouteMapping{
 			http.MethodGet: controllers.DownloadGet,
 		},
 	},
+	"/health/conflicts": service.Route{
+		Description: "check for conflicts",
+		MethodMapping: service.MethodMapping{
+			http.MethodGet: controllers.FileFsCheck,
+		},
+	},
 }
 
 // ENV:
