@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"github.com/Dadard29/go-warehouse/api"
 	"github.com/Dadard29/go-warehouse/models"
 	"time"
@@ -9,6 +10,10 @@ import (
 
 const (
 	listLimit = 5
+
+	SearchFieldTitle  = "title"
+	SearchFieldArtist = "artist"
+	SearchFieldAlbum  = "album"
 )
 
 func musicExists(title string, artist string) bool {
@@ -82,4 +87,18 @@ func MusicList() ([]models.MusicEntity, error) {
 	api.Api.Database.Orm.Order("added_at desc").Limit(listLimit).Find(&l)
 
 	return l, nil
+}
+
+func MusicSearch(q string, searchField string) ([]models.MusicEntity, error) {
+	if len(q) < 4 {
+		return nil, errors.New("query length too short")
+	}
+
+	// add wildcard to match more records
+	q = q + "*"
+
+	var res []models.MusicEntity
+	api.Api.Database.Orm.Raw(fmt.Sprintf("SELECT * FROM music WHERE MATCH(%s) AGAINST(? IN BOOLEAN MODE)", searchField), q).Scan(&res)
+
+	return res, nil
 }

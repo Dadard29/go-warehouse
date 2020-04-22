@@ -11,6 +11,7 @@ import (
 const (
 	fileParam     = "file"
 	imageUrlParam = "image_url"
+	queryParam    = "q"
 )
 
 // GET
@@ -158,4 +159,31 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 
 	api.Api.BuildJsonResponse(
 		true, "file stored", fileDb, w)
+}
+
+// GET
+// Authorization: 	JWT
+// Params: 			queryParam
+// Body: 			None
+func FileSearch(w http.ResponseWriter, r *http.Request) {
+	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
+	if !checkToken(accessToken, w) {
+		return
+	}
+
+	q := r.URL.Query().Get(queryParam)
+	if q == "" {
+		api.Api.BuildMissingParameter(w)
+		return
+	}
+
+	l, err := managers.FileDbSearchManager(q)
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error search for musics", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(true, "search performed", l, w)
+
 }

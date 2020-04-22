@@ -25,6 +25,12 @@ var routes = service.RouteMapping{
 			http.MethodGet: controllers.FileGetList,
 		},
 	},
+	"/upload/search": service.Route{
+		Description: "perform searches on DB",
+		MethodMapping: service.MethodMapping{
+			http.MethodGet: controllers.FileSearch,
+		},
+	},
 	"/download": service.Route{
 		Description: "manage download",
 		MethodMapping: service.MethodMapping{

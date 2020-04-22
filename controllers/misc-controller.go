@@ -20,7 +20,7 @@ func checkToken(token string, w http.ResponseWriter) bool {
 	msg, err := Sc.CheckToken(token, apiName)
 	if err != nil {
 		logger.Error(err.Error())
-		api.Api.BuildErrorResponse(http.StatusInternalServerError,
+		api.Api.BuildErrorResponse(http.StatusUnauthorized,
 			msg, w)
 		return false
 	}

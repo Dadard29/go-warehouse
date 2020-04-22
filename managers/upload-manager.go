@@ -18,6 +18,8 @@ const (
 	maxSize      = maxMegaBytes << (10 * 2)
 
 	maxFilesNumber = 10
+
+	searchLimit = 10
 )
 
 func cleanTempFile(path string) {
@@ -177,4 +179,38 @@ func FileDbListManager() ([]models.MusicDto, error) {
 	}
 
 	return lDtos, nil
+}
+
+func FileDbSearchManager(q string) ([]models.MusicDto, error) {
+	var lDtos = make([]models.MusicDto, 0)
+
+	for _, field := range []string{repositories.SearchFieldTitle, repositories.SearchFieldArtist, repositories.SearchFieldAlbum} {
+
+		l, err := repositories.MusicSearch(q, field)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, v := range l {
+			vDto := v.ToDto()
+
+			// check if v already in lDtos
+			check := false
+			for _, e := range lDtos {
+				if e == vDto {
+					check = true
+				}
+			}
+
+			if !check {
+				lDtos = append(lDtos, vDto)
+				if len(lDtos) >= searchLimit {
+					return lDtos, nil
+				}
+			}
+		}
+	}
+
+	return lDtos, nil
+
 }
