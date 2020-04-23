@@ -84,6 +84,13 @@ func MusicCreate(token string, mp models.MusicParam, t models.Tags) (models.Musi
 
 func MusicList() ([]models.MusicEntity, error) {
 	var l []models.MusicEntity
+	api.Api.Database.Orm.Order("added_at desc").Find(&l)
+
+	return l, nil
+}
+
+func MusicListLimit() ([]models.MusicEntity, error) {
+	var l []models.MusicEntity
 	api.Api.Database.Orm.Order("added_at desc").Limit(listLimit).Find(&l)
 
 	return l, nil

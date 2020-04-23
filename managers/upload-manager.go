@@ -36,7 +36,7 @@ func FileFsCheck() (bool, error) {
 		return false, err
 	}
 
-	dbList, err := FileDbListManager()
+	dbList, err := repositories.MusicList()
 	if err != nil {
 		return false, err
 	}
@@ -168,7 +168,7 @@ func FileDbDelete(title string, artist string) (models.MusicDto, error) {
 }
 
 func FileDbListManager() ([]models.MusicDto, error) {
-	lEntities, err := repositories.MusicList()
+	lEntities, err := repositories.MusicListLimit()
 	if err != nil {
 		return nil, err
 	}
