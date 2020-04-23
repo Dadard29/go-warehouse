@@ -1,0 +1,34 @@
+image: docker:stable
+stages:
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+build:
+  only:
+    - tags
+  stage: build
+  script:
+    - docker info
+    - echo "registering with $REGISTRY_USERNAME $REGISTRY_PASSWORD"
+    - echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USERNAME --password-stdin registry.gitlab.com
+    - echo version set to $CI_COMMIT_TAG
+    - docker build -t $IMAGE_NAME --build-arg ARG_VERSION=$CI_COMMIT_TAG --build-arg ARG_HOST_SUB=$ARG_HOST_SUB --build-arg ARG_DB_USER=$ARG_DB_USER --build-arg ARG_DB_PASSWORD=$ARG_DB_PASSWORD  .
+    - docker push $IMAGE_NAME
+
+deploy:
+  only:
+    - tags
+  stage: deploy
+  script:
+    - apk add --update curl wget
+    - wget https://git.dadard.fr/dadard/scripts/raw/branch/master/deploy.sh
+    - export CONTAINER_NAME
+    - export IMAGE_NAME
+    - export POD_NAME
+    - export DEPLOYER_URL
+    - export DEPLOYER_TOKEN
+    - echo "deploying container $CONTAINER_NAME ($IMAGE_NAME) with API $DEPLOYER_URL, $DEPLOYER_TOKEN in pod $POD_NAME"
+    - sh deploy.sh
