@@ -46,13 +46,13 @@ func FileFsCheck(w http.ResponseWriter, r *http.Request) {
 // Body: 			None
 
 // get last added files from DB
-func FileGetList(w http.ResponseWriter, r *http.Request) {
+func FileGetListLastAdded(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
 	if !checkToken(accessToken, w) {
 		return
 	}
 
-	l, err := managers.FileDbListManager()
+	l, err := managers.FileDbListLastManager()
 	if err != nil {
 		logger.Error(err.Error())
 		api.Api.BuildErrorResponse(http.StatusInternalServerError, "error listing musics", w)
@@ -60,6 +60,52 @@ func FileGetList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.Api.BuildJsonResponse(true, "files listed", l, w)
+}
+
+// GET
+// Authorization: 	token
+// Params: 			None
+// Body: 			None
+
+// get the list of albums
+func FileGetListAlbums(w http.ResponseWriter, r *http.Request) {
+	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
+	if !checkToken(accessToken, w) {
+		return
+	}
+
+	l, err := managers.FileDbListAlbumManager()
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "failed to get album list", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(true, "album list retrieved", l, w)
+
+}
+
+// GET
+// Authorization: 	token
+// Params: 			None
+// Body: 			None
+
+// get the list of artist
+func FileGetListArtists(w http.ResponseWriter, r *http.Request) {
+	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
+	if !checkToken(accessToken, w) {
+		return
+	}
+
+	l, err := managers.FileDbListArtistManager()
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusInternalServerError, "failed to get artist list", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(true, "artist list retrieved", l, w)
+
 }
 
 // DELETE

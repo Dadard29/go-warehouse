@@ -36,10 +36,7 @@ func FileFsCheck() (bool, error) {
 		return false, err
 	}
 
-	dbList, err := repositories.MusicList()
-	if err != nil {
-		return false, err
-	}
+	dbList := repositories.MusicList()
 
 	for _, f := range fsList {
 		check := false
@@ -168,7 +165,7 @@ func FileDbDelete(title string, artist string) (models.MusicDto, error) {
 	return m.ToDto(), nil
 }
 
-func FileDbListManager() ([]models.MusicDto, error) {
+func FileDbListLastManager() ([]models.MusicDto, error) {
 	lEntities, err := repositories.MusicListLimit()
 	if err != nil {
 		return nil, err
@@ -180,6 +177,62 @@ func FileDbListManager() ([]models.MusicDto, error) {
 	}
 
 	return lDtos, nil
+}
+
+func FileDbListAlbumManager() ([]models.AlbumDto, error) {
+	songList := repositories.MusicList()
+	albumList := repositories.MusicAlbumsList()
+
+	var res = make([]models.AlbumDto, 0)
+	var imageUrl string
+	var artist string
+
+	for _, a := range albumList {
+		var titleList = make([]string, 0)
+		for _, s := range songList {
+			if s.Album == a.Album {
+				titleList = append(titleList, s.Title)
+				imageUrl = s.ImageUrl
+				artist = s.Artist
+			}
+		}
+
+		res = append(res, models.AlbumDto{
+			Name:      a.Album,
+			TitleList: titleList,
+			Artist:    artist,
+			ImageURL:  imageUrl,
+		})
+	}
+
+	return res, nil
+}
+
+func FileDbListArtistManager() ([]models.ArtistDto, error) {
+	albumList, err := FileDbListAlbumManager()
+	if err != nil {
+		return nil, err
+	}
+
+	artistList := repositories.MusicArtistsList()
+
+
+	var res = make([]models.ArtistDto, 0)
+	for _, ar := range artistList {
+		var arAlbumList = make([]models.AlbumDto, 0)
+		for _, al := range albumList {
+			if al.Artist == ar.Artist {
+				arAlbumList = append(arAlbumList, al)
+			}
+		}
+
+		res = append(res, models.ArtistDto{
+			Name:      ar.Artist,
+			AlbumList: arAlbumList,
+		})
+	}
+
+	return res, nil
 }
 
 func FileDbSearchManager(q string) ([]models.MusicDto, error) {

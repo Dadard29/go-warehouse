@@ -82,11 +82,25 @@ func MusicCreate(token string, mp models.MusicParam, t models.Tags) (models.Musi
 	return m, nil
 }
 
-func MusicList() ([]models.MusicEntity, error) {
+func MusicAlbumsList() []models.MusicEntity {
+	var res = make([]models.MusicEntity, 0)
+	api.Api.Database.Orm.Table("music").Select("DISTINCT album").Scan(&res)
+
+	return res
+}
+
+func MusicArtistsList() []models.MusicEntity {
+	var res = make([]models.MusicEntity, 0)
+	api.Api.Database.Orm.Table("music").Select("DISTINCT artist").Scan(&res)
+
+	return res
+}
+
+func MusicList() ([]models.MusicEntity) {
 	var l []models.MusicEntity
 	api.Api.Database.Orm.Order("added_at desc").Find(&l)
 
-	return l, nil
+	return l
 }
 
 func MusicListLimit() ([]models.MusicEntity, error) {

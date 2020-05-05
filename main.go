@@ -20,10 +20,22 @@ var routes = service.RouteMapping{
 			http.MethodGet: controllers.FileGet,
 		},
 	},
-	"/upload/list": service.Route{
+	"/upload/list/last": service.Route{
 		Description: "manage the list of files",
 		MethodMapping: service.MethodMapping{
-			http.MethodGet: controllers.FileGetList,
+			http.MethodGet: controllers.FileGetListLastAdded,
+		},
+	},
+	"/upload/list/album": service.Route{
+		Description:   "manage the list of available albums",
+		MethodMapping: service.MethodMapping{
+			http.MethodGet: controllers.FileGetListAlbums,
+		},
+	},
+	"/upload/list/artist": service.Route{
+		Description:   "manage the list of available artist",
+		MethodMapping: service.MethodMapping{
+			http.MethodGet: controllers.FileGetListArtists,
 		},
 	},
 	"/upload/search": service.Route{

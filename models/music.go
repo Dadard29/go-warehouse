@@ -43,6 +43,18 @@ type MusicDto struct {
 	AddedAt time.Time `json:"added_at"`
 }
 
+type AlbumDto struct {
+	Name string   `json:"name"`
+	TitleList []string `json:"title_list"`
+	Artist    string   `json:"artist"`
+	ImageURL  string   `json:"image_url"`
+}
+
+type ArtistDto struct {
+	Name string `json:"name"`
+	AlbumList  []AlbumDto `json:"album_list"`
+}
+
 // input
 type MusicParam struct {
 	ImageUrl string `json:"image_url"`
