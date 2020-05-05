@@ -12,6 +12,9 @@ const (
 	fileParam     = "file"
 	imageUrlParam = "image_url"
 	queryParam    = "q"
+
+	titleParam = "title"
+	artistParam = "artist"
 )
 
 // GET
@@ -65,6 +68,7 @@ func FileGetList(w http.ResponseWriter, r *http.Request) {
 // Body: 			None
 
 // remove file from DB and FS
+// todo: remove directories when they get empty after deletion
 func FileDelete(w http.ResponseWriter, r *http.Request) {
 	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
 	if !checkToken(accessToken, w) {
@@ -159,6 +163,36 @@ func FileUpload(w http.ResponseWriter, r *http.Request) {
 
 	api.Api.BuildJsonResponse(
 		true, "file stored", fileDb, w)
+}
+
+// GET
+// Authorization: 	token
+// Params: 			None
+// Body: 			None
+
+// get a file object from DB
+func FileGet(w http.ResponseWriter, r *http.Request) {
+	accessToken := auth.ParseApiKey(r, accessTokenKey, true)
+	if !checkToken(accessToken, w) {
+		return
+	}
+
+	title := r.URL.Query().Get(titleParam)
+	artist := r.URL.Query().Get(artistParam)
+
+	if title == "" || artist == "" {
+		api.Api.BuildMissingParameter(w)
+		return
+	}
+
+	m, err := managers.FileDbGet(title, artist)
+	if err != nil {
+		logger.Error(err.Error())
+		api.Api.BuildErrorResponse(http.StatusNotFound, "failed to get the music", w)
+		return
+	}
+
+	api.Api.BuildJsonResponse(true, "music retrieved", m, w)
 }
 
 // GET

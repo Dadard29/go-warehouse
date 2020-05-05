@@ -96,6 +96,7 @@ func FileStoreManager(file multipart.File, headers *multipart.FileHeader, mp mod
 
 	// check mime
 	if headers.Header.Get("Content-Type") != mimeMp3 {
+		logger.Info(headers.Header.Get("Content-Type"))
 		return f, errors.New("bad mime")
 	}
 
@@ -213,4 +214,15 @@ func FileDbSearchManager(q string) ([]models.MusicDto, error) {
 
 	return lDtos, nil
 
+}
+
+func FileDbGet(title string, artist string) (models.MusicDto, error) {
+	var f models.MusicDto
+
+	m, err := repositories.MusicGetFromTitle(title, artist)
+	if err != nil {
+		return f, err
+	}
+
+	return m.ToDto(), nil
 }

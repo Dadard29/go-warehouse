@@ -17,6 +17,7 @@ var routes = service.RouteMapping{
 		MethodMapping: service.MethodMapping{
 			http.MethodPost:   controllers.FileUpload,
 			http.MethodDelete: controllers.FileDelete,
+			http.MethodGet: controllers.FileGet,
 		},
 	},
 	"/upload/list": service.Route{
