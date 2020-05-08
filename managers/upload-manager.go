@@ -38,6 +38,10 @@ func FileFsCheck() (bool, error) {
 
 	dbList := repositories.MusicList()
 
+	if len(fsList) != len(dbList) {
+		return false, errors.New("conflicts found")
+	}
+
 	for _, f := range fsList {
 		check := false
 		for _, d := range dbList {
