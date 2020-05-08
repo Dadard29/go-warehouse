@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Dadard29/go-warehouse/models"
+	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -17,6 +18,30 @@ const (
 
 func getFullFilePath(tags models.Tags) string {
 	return path.Join(baseDirStore, tags.Artist, tags.Album, tags.Title+mp3Extension)
+}
+
+func moveFile(sourcePath, destPath string) error {
+	inputFile, err := os.Open(sourcePath)
+	if err != nil {
+		return fmt.Errorf("couldn't open source file: %s", err)
+	}
+	outputFile, err := os.Create(destPath)
+	if err != nil {
+		inputFile.Close()
+		return fmt.Errorf("couldn't open dest file: %s", err)
+	}
+	defer outputFile.Close()
+	_, err = io.Copy(outputFile, inputFile)
+	inputFile.Close()
+	if err != nil {
+		return fmt.Errorf("writing to output file failed: %s", err)
+	}
+	// The copy was successful, so now delete the original file
+	err = os.Remove(sourcePath)
+	if err != nil {
+		return fmt.Errorf("failed removing original file: %s", err)
+	}
+	return nil
 }
 
 func GetFilePathForDownload(tags models.Tags) (string, error) {
@@ -47,7 +72,7 @@ func AddFile(srcPath string, tags models.Tags) (models.File, error) {
 	}
 
 	outputPath := getFullFilePath(tags)
-	if err := os.Rename(srcPath, outputPath); err != nil {
+	if err := moveFile(srcPath, outputPath); err != nil {
 		return f, err
 	}
 

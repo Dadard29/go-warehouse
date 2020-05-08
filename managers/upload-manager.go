@@ -133,7 +133,6 @@ func FileStoreManager(file multipart.File, headers *multipart.FileHeader, mp mod
 		return f, errors.New("error reading id3v2 tags")
 	}
 
-	// check if tags equals the params
 
 	var fileAdded models.File
 	if fileAdded, err = repositories.AddFile(tempFilePath, tags); err != nil {
